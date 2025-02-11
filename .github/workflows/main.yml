@@ -1,4 +1,4 @@
-name: Build NixOS Image for ARM
+name: Build NixOS Image for Wormdingler
 
 on:
   push:
@@ -7,24 +7,26 @@ on:
   pull_request:
 
 jobs:
-  build-arm:
+  build-wormdingler:
     runs-on: ubuntu-latest
 
     steps:
     - name: Checkout repository
       uses: actions/checkout@v3
 
-    - name: Install dependencies for ARM emulation
+    - name: Install dependencies
       run: |
         sudo apt-get update
-        sudo apt-get install -y qemu-user-static binfmt-support
+        sudo apt-get install -y qemu-user-static binfmt-support gcc-aarch64-linux-gnu
+        sudo update-binfmts --enable qemu-aarch64
 
     - name: Install Nix package manager
       run: |
         curl -L https://nixos.org/nix/install | sh
         . /home/runner/.nix-profile/etc/profile.d/nix.sh
+        echo "source /home/runner/.nix-profile/etc/profile.d/nix.sh" >> $GITHUB_ENV
 
-    - name: Build NixOS ARM Image
+    - name: Build NixOS Image for Wormdingler
       env:
         NIX_PATH: nixpkgs=channel:nixos-unstable
       run: |
@@ -33,5 +35,5 @@ jobs:
     - name: Upload ARM Image
       uses: actions/upload-artifact@v4
       with:
-        name: nixos-arm-image
+        name: nixos-wormdingler-image
         path: ./result
