@@ -3,7 +3,7 @@ name: Build NixOS Image for Wormdingler
 on:
   push:
     branches:
-      - main
+      - development
   pull_request:
 
 jobs:
