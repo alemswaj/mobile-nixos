@@ -11,4 +11,8 @@
   imports = [
     ./modules/all.nix
   ];
+nixpkgs.config.allowUnfree = true;
+    hardware.firmware = [
+    pkgs.chromeos-sc7180-unredistributable-firmware
+  ];
 }
