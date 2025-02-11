@@ -3,7 +3,7 @@ name: Build NixOS Image for Wormdingler
 on:
   push:
     branches:
-      - development
+      - main
   pull_request:
 
 jobs:
@@ -23,13 +23,12 @@ jobs:
     - name: Install Nix package manager
       run: |
         curl -L https://nixos.org/nix/install | sh
-        echo "/home/runner/.nix-profile/etc/profile.d/nix.sh" >> $GITHUB_ENV
-
 
     - name: Build NixOS Image for Wormdingler
       env:
         NIX_PATH: nixpkgs=channel:nixos-unstable
       run: |
+        . /home/runner/.nix-profile/etc/profile.d/nix.sh
         nix-build examples/installer/ --argstr device lenovo-wormdingler -A outputs.default
 
     - name: Upload ARM Image
