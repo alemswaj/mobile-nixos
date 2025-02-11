@@ -23,7 +23,7 @@ jobs:
     - name: Install Nix package manager
       run: |
         curl -L https://nixos.org/nix/install | sh
-    echo "/home/runner/.nix-profile/etc/profile.d/nix.sh" >> $GITHUB_ENV
+        echo "/home/runner/.nix-profile/etc/profile.d/nix.sh" >> $GITHUB_ENV
 
 
     - name: Build NixOS Image for Wormdingler
