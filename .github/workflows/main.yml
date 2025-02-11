@@ -31,7 +31,7 @@ jobs:
         nix-build examples/installer/ --argstr device lenovo-wormdingler -A outputs.default
 
     - name: Upload ARM Image
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: nixos-arm-image
         path: ./result
