@@ -3,7 +3,7 @@ name: Build NixOS Image for ARM
 on:
   push:
     branches:
-      - main
+      - development
   pull_request:
 
 jobs:
