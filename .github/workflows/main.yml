@@ -17,18 +17,19 @@ jobs:
         run: |
           sudo apt update && sudo apt install -y python3 git wget curl lz4 cpio
           git clone https://gitlab.com/postmarketOS/pmbootstrap.git ~/pmbootstrap
-          echo "export PATH=$HOME/pmbootstrap:$PATH" >> ~/.bashrc
-          source ~/.bashrc
+          chmod +x ~/pmbootstrap/pmbootstrap
 
       - name: Initialize pmbootstrap
         run: |
-          pmbootstrap init --work-dir ~/pmbootstrap_work --arch aarch64 --device lenovo-duet3
-          pmbootstrap config ui lomiri
+          export PATH=$HOME/pmbootstrap:$PATH
+          ~/pmbootstrap/pmbootstrap init --work-dir ~/pmbootstrap_work --arch aarch64 --device lenovo-duet3
+          ~/pmbootstrap/pmbootstrap config ui lomiri
 
       - name: Build and package image
         run: |
-          pmbootstrap install
-          pmbootstrap export
+          export PATH=$HOME/pmbootstrap:$PATH
+          ~/pmbootstrap/pmbootstrap install
+          ~/pmbootstrap/pmbootstrap export
 
       - name: Upload image artifact
         uses: actions/upload-artifact@v4
