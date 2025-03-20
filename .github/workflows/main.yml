@@ -3,7 +3,7 @@ name: Build pmbootstrap Image
 on:
   push:
     branches:
-      - main
+      - development
   workflow_dispatch:
 
 jobs:
@@ -15,21 +15,17 @@ jobs:
 
       - name: Set up dependencies
         run: |
-          sudo apt update && sudo apt install -y python3 git wget curl lz4 cpio
-          git clone https://gitlab.com/postmarketOS/pmbootstrap.git ~/pmbootstrap
-          chmod +x ~/pmbootstrap/pmbootstrap
+          sudo apt update && sudo apt install -y pmbootstrap
 
       - name: Initialize pmbootstrap
         run: |
-          export PATH=$HOME/pmbootstrap:$PATH
-          ~/pmbootstrap/pmbootstrap init --work-dir ~/pmbootstrap_work --arch aarch64 --device lenovo-duet3
-          ~/pmbootstrap/pmbootstrap config ui lomiri
+          pmbootstrap init --work-dir ~/pmbootstrap_work --arch aarch64 --device lenovo-duet3
+          pmbootstrap config ui lomiri
 
       - name: Build and package image
         run: |
-          export PATH=$HOME/pmbootstrap:$PATH
-          ~/pmbootstrap/pmbootstrap install
-          ~/pmbootstrap/pmbootstrap export
+          pmbootstrap install
+          pmbootstrap export
 
       - name: Upload image artifact
         uses: actions/upload-artifact@v4
