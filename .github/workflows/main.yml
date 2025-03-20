@@ -19,8 +19,9 @@ jobs:
 
       - name: Initialize pmbootstrap
         run: |
-          pmbootstrap init --work-dir ~/pmbootstrap_work --arch aarch64 --device lenovo-duet3
+          pmbootstrap config device lenovo-duet3
           pmbootstrap config ui lomiri
+          pmbootstrap init --no-interactive
 
       - name: Build and package image
         run: |
@@ -31,4 +32,4 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: pmbootstrap-image
-          path: ~/pmbootstrap_work/chroot_rootfs_export/*
+          path: ~/.local/var/pmbootstrap/chroot_rootfs_export/*
