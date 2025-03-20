@@ -1,38 +1,37 @@
-name: Build NixOS Image for Wormdingler
+name: Build pmbootstrap Image
 
 on:
   push:
     branches:
-      - development
-  pull_request:
+      - main
+  workflow_dispatch:
 
 jobs:
-  build-wormdingler:
+  build:
     runs-on: ubuntu-latest
-
     steps:
-    - name: Checkout repository
-      uses: actions/checkout@v3
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
-    - name: Install dependencies
-      run: |
-        sudo apt-get update
-        sudo apt-get install -y qemu-user-static binfmt-support gcc-aarch64-linux-gnu
-        sudo update-binfmts --enable qemu-aarch64
+      - name: Set up dependencies
+        run: |
+          sudo apt update && sudo apt install -y python3 git wget curl lz4 cpio
+          git clone https://gitlab.com/postmarketOS/pmbootstrap.git ~/pmbootstrap
+          echo "export PATH=$HOME/pmbootstrap:$PATH" >> ~/.bashrc
+          source ~/.bashrc
 
-    - name: Install Nix package manager
-      run: |
-        curl -L https://nixos.org/nix/install | sh
+      - name: Initialize pmbootstrap
+        run: |
+          pmbootstrap init --work-dir ~/pmbootstrap_work --arch aarch64 --device lenovo-duet3
+          pmbootstrap config ui lomiri
 
-    - name: Build NixOS Image for Wormdingler
-      env:
-        NIX_PATH: nixpkgs=channel:nixos-unstable
-      run: |
-        . /home/runner/.nix-profile/etc/profile.d/nix.sh
-        nix-build examples/installer/ --argstr device lenovo-wormdingler -A outputs.default
+      - name: Build and package image
+        run: |
+          pmbootstrap install
+          pmbootstrap export
 
-    - name: Upload ARM Image
-      uses: actions/upload-artifact@v4
-      with:
-        name: nixos-wormdingler-image
-        path: ./result
+      - name: Upload image artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: pmbootstrap-image
+          path: ~/pmbootstrap_work/chroot_rootfs_export/*
