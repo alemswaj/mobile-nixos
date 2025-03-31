@@ -1,35 +1,68 @@
-name: Build pmbootstrap Image
+name: Build Popcorn Time Flatpak
 
 on:
   push:
     branches:
       - development
-  workflow_dispatch:
+  pull_request:
+    branches:
+      - main
 
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
+      - name: Set up QEMU for aarch64
+        run: sudo apt-get update && sudo apt-get install -y qemu-user-static
+
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Set up dependencies
+      - name: Install Flatpak and Flatpak-builder
         run: |
-          sudo apt update && sudo apt install -y pmbootstrap
+          sudo apt update
+          sudo apt install -y flatpak flatpak-builder
+          flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
 
-      - name: Initialize pmbootstrap
+      - name: Create Flatpak manifest
         run: |
-          pmbootstrap config device lenovo-duet3
-          pmbootstrap config ui lomiri
-          pmbootstrap init --no-interactive
+          cat <<EOF > popcorntime.json
+          {
+            "id": "com.popcorntime.PopcornTime",
+            "runtime": "org.freedesktop.Platform",
+            "runtime-version": "21.08",
+            "sdk": "org.freedesktop.Sdk",
+            "command": "Popcorn-Time",
+            "modules": [
+              {
+                "name": "popcorntime",
+                "buildsystem": "simple",
+                "build-commands": [
+                  "mkdir -p app",
+                  "cp -r * app/"
+                ],
+                "sources": [
+                  {
+                    "type": "git",
+                    "url": "https://github.com/popcorn-official/popcorn-desktop.git",
+                    "branch": "development"
+                  }
+                ]
+              }
+            ]
+          }
+          EOF
 
-      - name: Build and package image
+      - name: Build Flatpak
         run: |
-          pmbootstrap install
-          pmbootstrap export
+          flatpak-builder --arch=aarch64 --repo=repo build-dir popcorntime.json --force-clean
 
-      - name: Upload image artifact
+      - name: Create Flatpak bundle
+        run: |
+          flatpak build-bundle repo popcorntime-aarch64.flatpak com.popcorntime.PopcornTime
+
+      - name: Upload Flatpak artifact
         uses: actions/upload-artifact@v4
         with:
-          name: pmbootstrap-image
-          path: ~/.local/var/pmbootstrap/chroot_rootfs_export/*
+          name: popcorntime-aarch64
+          path: popcorntime-aarch64.flatpak
