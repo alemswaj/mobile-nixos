@@ -23,10 +23,8 @@ jobs:
         run: |
           git clone https://github.com/ading2210/shimboot.git
           cd shimboot
-      # Step 3: Install necessary dependencies, including coreutils for mknod
           sudo apt update
           sudo apt install -y sudo curl gnupg coreutils debootstrap qemu-user-static
-      # Step 4: Run your build script
           chmod +x ./build_complete.sh
           sudo ./build_complete.sh strongbad unstable
 
