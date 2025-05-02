@@ -23,8 +23,6 @@ jobs:
         run: |
           git clone https://github.com/ading2210/shimboot.git
           cd shimboot
-          # Checkout a specific branch or commit if needed
-          git checkout your-branch-or-commit
 
       # Step 3: Install necessary dependencies, including coreutils for mknod
       - name: Set up dependencies
