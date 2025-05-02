@@ -1,68 +1,32 @@
-name: Build Popcorn Time Flatpak
+name: Build strongbad rootfs
 
 on:
   push:
     branches:
       - development
-  pull_request:
-    branches:
-      - main
-
 jobs:
   build:
     runs-on: ubuntu-latest
-    steps:
-      - name: Set up QEMU for aarch64
-        run: sudo apt-get update && sudo apt-get install -y qemu-user-static
 
+    permissions:
+      contents: write
+
+    steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Install Flatpak and Flatpak-builder
+      - name: Set up dependencies
         run: |
           sudo apt update
-          sudo apt install -y flatpak flatpak-builder
-          flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
+          sudo apt install -y qemu-user-static debootstrap mknod tar xz-utils
 
-      - name: Create Flatpak manifest
+      - name: Run shimboot build
         run: |
-          cat <<EOF > popcorntime.json
-          {
-            "id": "com.popcorntime.PopcornTime",
-            "runtime": "org.freedesktop.Platform",
-            "runtime-version": "21.08",
-            "sdk": "org.freedesktop.Sdk",
-            "command": "Popcorn-Time",
-            "modules": [
-              {
-                "name": "popcorntime",
-                "buildsystem": "simple",
-                "build-commands": [
-                  "mkdir -p app",
-                  "cp -r * app/"
-                ],
-                "sources": [
-                  {
-                    "type": "git",
-                    "url": "https://github.com/popcorn-official/popcorn-desktop.git",
-                    "branch": "development"
-                  }
-                ]
-              }
-            ]
-          }
-          EOF
+          sudo chmod +x ./build_complete.sh
+          sudo ./build_complete.sh strongbad unstable
 
-      - name: Build Flatpak
-        run: |
-          flatpak-builder --arch=aarch64 --repo=repo build-dir popcorntime.json --force-clean
-
-      - name: Create Flatpak bundle
-        run: |
-          flatpak build-bundle repo popcorntime-aarch64.flatpak com.popcorntime.PopcornTime
-
-      - name: Upload Flatpak artifact
+      - name: Upload build output
         uses: actions/upload-artifact@v4
         with:
-          name: popcorntime-aarch64
-          path: popcorntime-aarch64.flatpak
+          name: strongbad-rootfs
+          path: ./output/*  # Replace with the actual output path if different
