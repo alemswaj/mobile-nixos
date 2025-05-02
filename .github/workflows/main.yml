@@ -1,32 +1,46 @@
-name: Build strongbad rootfs
+name: Build strongbad ARM rootfs
 
 on:
+  # Manual trigger
+  workflow_dispatch:
+  
+  # Trigger on push to the 'development' branch
   push:
     branches:
       - development
+
 jobs:
   build:
     runs-on: ubuntu-latest
 
-    permissions:
-      contents: write
-
     steps:
+      # Step 1: Checkout repository (for your script and any related files)
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      # Step 2: Clone the shimboot repo
+      - name: Clone shimboot repository
+        run: |
+          git clone https://github.com/your-username/shimboot.git
+          cd shimboot
+          # Checkout a specific branch or commit if needed
+          git checkout your-branch-or-commit
+
+      # Step 3: Install necessary dependencies, including coreutils for mknod
       - name: Set up dependencies
         run: |
           sudo apt update
-          sudo apt install -y qemu-user-static debootstrap mknod tar xz-utils
+          sudo apt install -y sudo curl gnupg coreutils debootstrap qemu-user-static
 
-      - name: Run shimboot build
+      # Step 4: Run your build script
+      - name: Run build script for strongbad rootfs
         run: |
-          sudo chmod +x ./build_complete.sh
+          chmod +x ./build_complete.sh
           sudo ./build_complete.sh strongbad unstable
 
+      # Step 5: Upload the output as an artifact
       - name: Upload build output
         uses: actions/upload-artifact@v4
         with:
           name: strongbad-rootfs
-          path: ./output/*  # Replace with the actual output path if different
+          path: ./output/*  # Adjust based on where the output files are generated
