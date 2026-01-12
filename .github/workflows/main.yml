@@ -24,7 +24,7 @@ jobs:
           sudo apt install nix
           git clone https://github.com/mobile-nixos/mobile-nixos.git
           cd mobile-nixos
-          nix-build examples/installer --argstr device lenovo-wormdingler -A outputs.default
+          sudo nix-build examples/installer --argstr device lenovo-wormdingler -A outputs.default
 
 
       # Step 5: Upload the output as an artifact
